@@ -1,2 +1,2 @@
-# t-room
-Terminal-based chatroom with AES encryption
+# PrivMe App
+Simple App-based chatroom with AES encryption
