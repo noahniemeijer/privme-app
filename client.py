@@ -1,35 +1,60 @@
+import flet as ft
 import socket
 import threading
 import getpass
 import os
-import curses
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-class ChatClient:
-    def __init__(self):
-        # Prompt for server address and port (address:port format or domain name) outside of curses
-        server_input = input("Enter server address (e.g., '127.0.0.1:5555' or 'chatserver.com'): ")
-        if ':' in server_input:
-            host, port = server_input.split(':')
-            port = int(port)
-        else:
-            host = server_input
-            port = int(input("Enter server port (e.g., 5555): "))
-        
-        # Establish socket connection
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect((host, port))
 
-        # Prompt for user details outside of curses
-        self.username = input("Enter your name: ")
-        self.password = getpass.getpass("Enter encryption password: ")
-        self.key = self.derive_key(self.password)
-        
-        # Send username unencrypted to the server
-        self.client_socket.send(self.username.encode())
+class Message:
+    def __init__(self, user_name: str, text: str, message_type: str):
+        self.user_name = user_name
+        self.text = text
+        self.message_type = message_type
+
+
+class ChatClient:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        self.chat = ft.ListView(
+            expand=True,
+            spacing=10,
+            auto_scroll=True,
+        )
+
+        self.new_message = ft.TextField(
+            hint_text="Write a message...",
+            autofocus=True,
+            shift_enter=True,
+            min_lines=1,
+            max_lines=5,
+            filled=True,
+            expand=True,
+            on_submit=self.send_message_click,
+        )
+
+        self.username = ""
+        self.password = ""
+        self.key = None
+        self.client_socket = None
+
+        # Setup initial dialog
+        self.join_user_name = ft.TextField(
+            label="Enter your name to join the chat",
+            autofocus=True,
+            on_submit=self.join_chat_click,
+        )
+        self.page.dialog = ft.AlertDialog(
+            open=True,
+            modal=True,
+            title=ft.Text("Welcome!"),
+            content=ft.Column([self.join_user_name], width=300, height=70, tight=True),
+            actions=[ft.ElevatedButton(text="Join chat", on_click=self.join_chat_click)],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
 
     def derive_key(self, password):
         """Derives a 32-byte key from the password."""
@@ -59,91 +84,141 @@ class ChatClient:
         decrypted_message = decryptor.update(encrypted_message[16:]) + decryptor.finalize()
         return decrypted_message.decode()
 
-    def setup_windows(self, stdscr):
-        """Initialize the chat and input windows with curses and setup colors."""
-        self.stdscr = stdscr
-        curses.curs_set(0)  # Hide cursor for cleaner display
-        curses.start_color()  # Enable color mode in curses
+    def join_chat_click(self, e):
+        if not self.join_user_name.value:
+            self.join_user_name.error_text = "Name cannot be blank!"
+            self.join_user_name.update()
+        else:
+            self.username = self.join_user_name.value
+            self.password = getpass.getpass("Enter encryption password: ")
+            self.key = self.derive_key(self.password)
+            self.page.session.set("user_name", self.username)
+            self.page.dialog.open = False
 
-        # Define color pairs
-        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)  # Green for usernames
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # White for "You:" and other messages
+            # Setup socket connection
+            server_input = input("Enter server address (e.g., '127.0.0.1:5555' or 'chatserver.com'): ")
+            if ':' in server_input:
+                host, port = server_input.split(':')
+                port = int(port)
+            else:
+                host = server_input
+                port = int(input("Enter server port (e.g., 5555): "))
+            
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client_socket.connect((host, port))
 
-        # Define chat and input windows based on terminal size
-        self.height, self.width = self.stdscr.getmaxyx()
-        self.chat_win = curses.newwin(self.height - 3, self.width, 0, 0)
-        self.input_win = curses.newwin(3, self.width, self.height - 3, 0)
+            # Send username to the server
+            self.client_socket.send(self.username.encode())
+            
+            self.page.pubsub.send_all(
+                Message(self.username, f"{self.username} has joined the chat.", "login_message")
+            )
+            self.page.update()
 
-        # Enable scrolling in chat window
-        self.chat_win.scrollok(True)
-        self.chat_win.idlok(True)
+            # Start the receive thread
+            threading.Thread(target=self.receive_messages, daemon=True).start()
 
-    def display_message(self, username, message, user_color_pair):
-        """Display incoming messages in the chat box with username in color."""
-        # Display the username in the specified color
-        self.chat_win.addstr(username, curses.color_pair(user_color_pair))
-        self.chat_win.addstr(f": {message}\n", curses.color_pair(2))  # Message in white
-        self.chat_win.refresh()
+    def send_message_click(self, e):
+        message = self.new_message.value
+        if message != "":
+            encrypted_message = self.encrypt_message(message)
+            self.client_socket.send(encrypted_message)
+            self.page.pubsub.send_all(
+                Message(self.username, message, "chat_message")
+            )
+            self.new_message.value = ""
+            self.new_message.focus()
+            self.page.update()
 
     def receive_messages(self):
-        """Receive and decrypt messages from the server."""
         while True:
             try:
                 data = self.client_socket.recv(1024)
                 if not data:
                     break
-                
-                # Separate username and message
-                username, encrypted_message = data.split(b": ", 1)
+            
+            # Ensure that the data received is properly handled as binary.
+            # The data is already encrypted, so we need to decrypt it.
                 try:
-                    message = self.decrypt_message(encrypted_message)
-                    # Display the username in green and message in white
-                    self.display_message(username.decode('utf-8'), message, 1)
-                except Exception:
-                    self.display_message("System", "Decryption failed for a message.", 2)
-                    
+                    decrypted_message = self.decrypt_message(data)
+                    self.page.pubsub.send_all(
+                        Message("Server", decrypted_message, "chat_message")
+                )
+                except Exception as e:
+                # If decryption fails, display an error
+                    self.page.pubsub.send_all(
+                        Message("System", f"Error decrypting message: {e}", "login_message")
+                )
+            
             except Exception as e:
-                self.display_message("System", f"Connection error: {e}", 2)
+            # If there's an error in receiving the data
+                self.page.pubsub.send_all(
+                    Message("System", f"Error receiving message: {e}", "login_message")
+            )
                 break
 
-    def send_messages(self):
-        """Encrypt and send messages to the server."""
-        while True:
-            # Clear and refresh input window
-            self.input_win.clear()
-            self.input_win.addstr("You: ", curses.color_pair(2))
-            self.input_win.refresh()
 
-            # Capture user input in the input box
-            curses.echo()
-            message = self.input_win.getstr().decode("utf-8")
-            curses.noecho()
+    def on_message(self, message: Message):
+        """Handle incoming messages and update the chat UI."""
+        if message.message_type == "chat_message":
+            self.chat.controls.append(ChatMessage(message))
+        elif message.message_type == "login_message":
+            self.chat.controls.append(ft.Text(message.text, italic=True, color=ft.colors.BLACK45, size=12))
+        self.page.update()
 
-            if message.lower() == "exit":
-                self.client_socket.close()
-                break
-
-            # Display "You: message" in chat window after sending
-            self.display_message("You", message, 2)
-
-            # Encrypt and send the message
-            encrypted_message = self.encrypt_message(message)
-            self.client_socket.send(encrypted_message)
-
-    def run_chat(self, stdscr):
-        """Run the curses interface and start chat operations."""
-        self.setup_windows(stdscr)
-        
-        # Start the receiver thread
-        threading.Thread(target=self.receive_messages, daemon=True).start()
-        
-        # Run the message-sending loop in the main thread
-        self.send_messages()
+    def setup_ui(self):
+        """Sets up the UI elements."""
+        self.page.add(
+            ft.Container(
+                content=self.chat,
+                border=ft.border.all(1, ft.colors.OUTLINE),
+                border_radius=5,
+                padding=10,
+                expand=True,
+            ),
+            ft.Row(
+                [
+                    self.new_message,
+                    ft.IconButton(
+                        icon=ft.icons.SEND_ROUNDED,
+                        tooltip="Send message",
+                        on_click=self.send_message_click,
+                    ),
+                ]
+            ),
+        )
 
     def run(self):
-        """Main entry point for starting the chat client."""
-        curses.wrapper(self.run_chat)
+        """Start the UI and subscribe to pubsub messages."""
+        self.page.pubsub.subscribe(self.on_message)
+        self.setup_ui()
 
-if __name__ == "__main__":
-    client = ChatClient()
+
+class ChatMessage(ft.Row):
+    """Displays individual chat messages."""
+    def __init__(self, message: Message):
+        super().__init__()
+        self.vertical_alignment = ft.CrossAxisAlignment.START
+        self.controls = [
+            ft.CircleAvatar(
+                content=ft.Text(message.user_name[:1].capitalize()),
+                color=ft.colors.WHITE,
+                bgcolor=ft.colors.BLUE,
+            ),
+            ft.Column(
+                [
+                    ft.Text(message.user_name, weight="bold"),
+                    ft.Text(message.text, selectable=True),
+                ],
+                tight=True,
+                spacing=5,
+            ),
+        ]
+
+
+def main(page: ft.Page):
+    client = ChatClient(page)
     client.run()
+
+
+ft.app(target=main)
