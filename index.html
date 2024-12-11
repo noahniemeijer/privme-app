@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Optionally add some simple styles to hide/show sections */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <section class="section-home" id="joinSection">
+        <button class="settings-button">
+            <img src='data:image/png;base64,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'/></img>
+        </button>
+        
+        <h1 class="title">Welcome to <span class="bold-title">PrivMe</span></h1>
+        <img class="logo" src="static/css/logo.png">
+        <h1 class="join-header">Join Room:</h1>
+        <!-- Username requirements will be displayed here -->
+        <div class="field">
+            <div class="control">
+                <input class="input" id="username" type="text" placeholder="Username...">
+            </div>
+        </div>
+        
+        <!-- Password input field -->
+        <div class="field">
+            <div class="control">
+                <input class="input" id="password" type="password" placeholder="Room password...">
+            </div>
+        </div>
+        
+        <!-- Join chat button -->
+        <button class="button" onclick="joinChat()">Enter</button>
+    </section>
+
+    <!-- Chat display section (hidden initially) -->
+    <section class="chat-section" id="chatSection">
+        <div class="menu" id="menu">
+            <!-- Menu content goes here -->
+            <img class="logo2" src="static/css/logo.png">
+        </div>
+        <div id="chatbox" class="box"></div>
+        <!-- Chat input and button horizontally aligned -->
+        <div class="chat-input-container">
+            <input class="chatbox" id="message" type="text" placeholder="Type your message...">
+            <button class="chatbutton" onclick="sendMessage()"><img class='chaticon' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADkAAAA5CAYAAACMGIOFAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAANsSURBVHgB7ZhBVhpBEIarGk1eEswbbzBskqfZhJhkjSeINxBPgDkBegM4AXADPYHsoyGLBLOTG8iLqHmR6Uo1ZmRmnIEm6QZfXn8bmKaGmb+ruqq6ARwOh8PhcDgc/wEIhjjuXm4hyMbogvBAiNx+ce1JDx4AxkSedAdn/OHHBgmaD0GsAJsglCUFZyffBo3O6bUPC8KcSKJW5m8LFmssXDudc08+Xj7XMlZhvAz14ov8F5gDxkQqPncHRwRQ0rXnh7cRidfsShssYnRNEslkyPZZyQ5/9lLteUIk4ZGaHA7lMljCqEjxKzgAJWyMJ4F6G+v5ghKrPJd238j7CA2VoW2INRquipOvFzUQWIk8oP1mPb8ZXn86vSjlCKtTwrrHyvc3XuWbYADjIpUIwSEYHRNPblaLhdV+0g6Jyghie8LfGRFrXKTiXgIi4hdd2UuzVSUloJs9m2KtNAMs8DB6jYgfsmxVN/R2/XlZYK5AILNqrR+u2c73q8qstdaKJ//UTNXmeeGYRNp8p1EqdD0rEJvso5ZOy2jFk8Xiap9nL1boBcGW1r2anpVEe7pdlBVPKlISUJ8TUCGZgKahBAzlkEWj8qyfaThhM2BNpILXkGrzvMjDlHdnEhlCtwJ9DcN7YpfAJkR1zjrV8fPhNdiGNwNEgc/f7mqz1a0WIc2lAU/Bi15YFYmE27AAAqJ4CQNLqIShsl9i+KP8C+9yZ+QJEJVpOxzVQga8q0mWKmtrUsqglJhC1ajXYAY6Z+TBz6uKBLlLiRCMgdAMclB/n7E/tZd4EKqJ633Q5E7c9WCXb/TSA45Ulm4JXKpNawisiOxwjZQUT/cCcu2p92mK4/+uLz3N14oF1CpHVkRKyQkn+n4cTpNme1ZxG5riQoyLHPWtGG/hhMDDVFuVnGRQldeX5dsRs+JCjIuUj5aVwGiS6BVfPjuI2tyGs6hw9t3Kzu//Li7EuEhE2KbYwPjIQ4kjPhXgly+N+p90etx8t0yIG7+CQdJqo9pNAAx90jny4Ay8sWbmyCOKUU+q9ZWsjdxHNgiwlHVPVgE3idlwxXue8ilj5zAPcSHGRB53f6iE40+zm6e4EGMiR834hBW+CHEh5sIVMfV4Y5HiQsx5ksXEsueUpnmemBOJuR2i4a76rtM0OxwOh8PhcDgcM/IbYNi66DnoyeoAAAAASUVORK5CYII='/></button>
+        </div>
+    </section>
+
+    <!-- Socket.IO and custom JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let usernameMaxLength = 20;  // Default maximum length for usernames
+
+        // Fetch username requirements from the server on page load
+        async function fetchUsernameRequirements() {
+            try {
+                const response = await fetch('/username_requirements');
+                const data = await response.json();
+                
+                // Update maximum username length based on server settings
+                usernameMaxLength = data.max_length;
+                
+                // Display requirements on the form
+                const requirementsText = `Username must be between 1 and ${usernameMaxLength} characters, with no spaces.`;
+                document.getElementById('usernameRequirements').innerText = requirementsText;
+            } catch (error) {
+                console.error('Error fetching username requirements:', error);
+            }
+        }
+
+        // Call fetchUsernameRequirements on page load
+        window.onload = function() {
+            fetchUsernameRequirements();
+
+            // Add event listener for "Enter" key in message input field
+            document.getElementById('message').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Prevents the default newline behavior
+                    sendMessage();
+                }
+            });
+        };
+
+        // Validate and join chat
+        function joinChat() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Client-side username validation
+            if (!username || username.length > usernameMaxLength || /\s/.test(username)) {
+                alert(`Username must be between 1 and ${usernameMaxLength} characters and contain no spaces.`);
+                return;
+            }
+            if (!username || username.length > usernameMaxLength || /\s/.test(username)) {
+                alert(`Username must be between 1 and ${usernameMaxLength} characters and contain no spaces.`);
+                return;
+            }
+
+            // Send join request with username and password to the server
+            socket.emit('join', { username, password });
+
+            // Hide join section and show chat section
+            document.getElementById('joinSection').classList.add('hidden');
+            document.getElementById('chatSection').classList.remove('hidden');
+        }
+
+        // Send a message to the server
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+
+            if (message.trim() !== '') {  // Only send non-empty messages
+                // Clear the input box after sending the message
+                document.getElementById('message').value = '';
+
+                // Emit the message to the server
+                socket.emit('send_message', { message });
+            }
+        }
+
+        // Handle incoming messages from the server
+        // Object to store colors for each user
+    // Define the predefined colors
+const predefinedColors = [
+    '#f38ba8', // Red
+    '#eba0ac', // Maroon
+    '#fab387', // Peach
+    '#f9e2af', // Yellow
+    '#a6e3a1', // Green
+    '#94e2d5', // Teal
+    '#89dceb', // Sky
+    '#74c7ec', // Sapphire
+    '#89b4fa'  // Blue
+];
+
+// Object to store colors for each user
+const userColors = {};
+
+// Function to get a random color from the predefined list
+function getRandomPredefinedColor() {
+    const randomIndex = Math.floor(Math.random() * predefinedColors.length);
+    return predefinedColors[randomIndex];
+}
+
+// Assign a color to a user if they don't already have one
+function getUserColor(username) {
+    if (username === 'System') {
+        return '#CDD6F4'; // Gray for system
+    } else if (username === 'You') {
+        return '#89b4fa'; // Fixed Blue for yourself
+    } else {
+        if (!userColors[username]) {
+            userColors[username] = getRandomPredefinedColor();
+        }
+        return userColors[username];
+    }
+}
+
+socket.on('message', (data) => {
+    const chatbox = document.getElementById('chatbox');
+    const isAtBottom = chatbox.scrollHeight - chatbox.scrollTop <= chatbox.clientHeight + 10;
+
+    const messageDiv = document.createElement('div');
+
+    // Apply a specific class if the message is from "System"
+    if (data.username === 'System') {
+        messageDiv.className = 'sysmsg';
+
+        // Remove newline (\n) and tab (\t) characters from the system message
+        data.message = data.message.replace(/[\n\t]/g, ''); // Remove tabs and line breaks
+    } else {
+        messageDiv.className = 'message';
+    }
+
+    // Get the color for the username (if not system)
+    const usernameColor = data.username === 'System' ? null : getUserColor(data.username);
+
+    // Format the message display
+    if (data.username === 'System') {
+        messageDiv.innerHTML = `<p class="sys-text">${data.message}</p>`;
+    } else {
+        messageDiv.innerHTML = `<p class="username" style="color: ${usernameColor};"><b>${data.username}</b></p> &nbsp; ${data.message}`;
+    }
+
+    chatbox.appendChild(messageDiv);
+
+    // Scroll to the bottom if needed
+    if (isAtBottom || data.isSentByUser) {
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+});
+
+
+
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent default Enter key behavior
+
+        // Check if the homepage section is visible
+        const isHomepageVisible = !document.getElementById("joinSection").classList.contains("hidden");
+        const isChatSectionVisible = !document.getElementById("chatSection").classList.contains("hidden");
+
+        if (isHomepageVisible) {
+            document.querySelector(".button").click(); // Simulate homepage button click
+        } else if (isChatSectionVisible) {
+            const chatButton = document.querySelector(".chatbutton");
+            const chatInfo = document.getElementById("chat-info");
+
+            if (event.shiftKey) {
+                // Toggle visibility of the chat info placeholder when Shift+Enter is pressed
+                chatInfo.classList.toggle("show");
+            } else {
+                // Simulate chat send button click for regular Enter
+                chatButton.click();
+            }
+        }
+    }
+});
+
+
+    </script>
+</body>
+</html>
