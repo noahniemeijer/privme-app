@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Inria+Sans:wght@100;200;300;400;700&display=swap');
+
+.chat-section {
+    display: flex;
+}
+
+/* Ensure joinSection is visible initially */
+.section-home {
+    display: block;
+}
+
+
+/* HOME */
+
+body, h1, p, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "InriaSans", Arial, sans-serif;
+}
+
+body {
+    background-color: #1e1e2e;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+.section-home {
+    width: 100vw;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.settings-button {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    left: 30px;
+    top: 40px;
+    border: none;
+    outline: none;
+    background-color: #45475a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+.settings-button:hover {
+    background-color: #333543;
+}
+
+.settings-button img {
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.title {
+    font-family: "Inria Sans", serif;
+    font-weight: 100;
+    font-size: 2em;
+    color: #CDD6F4;
+    position: absolute;
+    top: 50px;
+    left: 107px;
+    text-align: left;
+}
+
+.bold-title {
+    font-weight: 700;
+}
+
+.logo {
+    width: 450px;
+    height: 200px;
+    position: absolute;
+    top: 170px;
+}
+
+.join-header {
+    font-size: 50px;
+    font-family: "Inria Sans", serif;
+    font-weight: 700;
+    color: #CDD6F4;
+    padding-top: 250px;
+    padding-bottom: 20px;
+}
+
+.field {
+    margin-bottom: 8px;
+    display: fixed;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input, .button {
+    font-family: "Inria Sans", serif;
+    border-radius: 50px;
+    height: 65px;
+    color: #CDD6F4;
+}
+
+.input {
+    background-color: #45475A;
+    color: #CDD6F4;
+    padding-left: 30px;
+    width: 360px;
+    border: 1px solid #45475A;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+::placeholder {
+    color: #CDD6F4;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #CDD6F4;
+    background-color: #3d3f4f;
+}
+
+.button {
+    width: 250px;
+    border: none;
+    cursor: pointer;
+    background-color: #89B4FA;
+    transition: background-color 0.3s;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.button:hover {
+    background-color: #75a9fd;
+}
+
+/* CHAT */
+
+.logo2 {
+    position: absolute; /* Position it absolutely */
+    top: 25px; /* Adjust this value to position it vertically */
+    left: 50%; /* Center it horizontally */
+    transform: translateX(-50%); /* Adjust for the width of the logo */
+    width: 200px; /* Set the width of the logo */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.menu {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-left: 20px;
+    margin-top: 20px;
+    position: fixed;
+    height: 90%; /* Set the height of the menu to 85% of the viewport height */
+    width: 20%; /* Set a fixed width for the menu */
+    background-color: #313244; /* Background color for the menu */
+    color: #CDD6F4; /* Text color */
+    padding: 20px; /* Padding inside the menu */
+    border-radius: 40px; /* Rounded corners */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+
+.chat-section {
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Align children horizontally */
+    height: 100%;
+    width: 100%;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+
+#chatbox {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align messages to the left */
+    justify-content: flex-start; 
+    margin-left: 390px;
+    background-color: #1e1e2e;
+    color: #CDD6F4;
+    width: 70%;
+    height: 85%; /* Adjusted height */
+    overflow-y: auto;
+    padding: 15px;
+    border: 0px;
+    border-radius: 10px;
+    gap: 10px;
+}
+
+/* Ensure the chatbox auto-scrolls to the bottom when new messages are added */
+#chatbox::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chatbox::-webkit-scrollbar-thumb {
+    background: #45475A;
+    border-radius: 4px;
+}
+
+#chatbox::-webkit-scrollbar-thumb:hover {
+    background: #3d3f4f;
+}
+
+
+.message {
+    font-size: 1em;
+    color: #CDD6F4;
+    background-color: #6C7086;
+    padding-left: 15px;
+    padding-right: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 20px;
+    font-family: "InriaSans", Arial, sans-serif;
+    display: inline-block;
+    max-width: 100%;
+    word-wrap: break-word;
+    box-sizing: border-box; 
+}
+
+.sysmsg {
+    font-size: 1em;
+    color: #CDD6F4;
+    font-family: "InriaSans", Arial, sans-serif;
+    display: inline-block;
+    max-width: 100%;
+    word-wrap: break-word;
+    box-sizing: border-box; 
+    padding-left: 8px;
+}
+
+.username {
+    margin-bottom: 8px;
+}
+
+.chat-input-container {
+    margin-left: 27%;
+    display: flex;
+    align-items: center;
+    width: 72%; /* Matches chatbox width */
+    gap: 15px; /* Adds spacing between input and button */
+}
+
+.chatbox {
+    flex: 1; /* Input takes up available space */
+    background-color: #45475A;
+    padding: 0 20px;
+    width: 400px;
+    height: 50px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: 1px solid #45475A;
+    font-family: "InriaSans", Arial, sans-serif;
+    color: #CDD6F4;
+}
+
+.chatbutton {
+    background-color: #89B4FA;
+    padding: 0 20px;
+    height: 50px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 50px;
+    cursor: pointer; /* Pointer cursor for interactivity */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.chatbutton:hover {
+    background-color: #75a9fd;
+}
+
+.chaticon {
+    margin-right: 5px;
+    width: 45px; /* Adjust the width of the image */
+    height: 45px; /* Adjust the height of the image */
+    object-fit: cover; /* Ensures the image fits without distortion */
+}
+
